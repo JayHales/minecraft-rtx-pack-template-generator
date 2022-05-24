@@ -6,8 +6,9 @@ import shutil
 import uuid
 import json
 from PIL import Image
+from block_operations import create_height_map
 
-SHOULD_CLEAN_INSTALL = True
+SHOULD_CLEAN_INSTALL = False
 
 if os.path.exists('pack'):
     shutil.rmtree('pack')
@@ -23,9 +24,6 @@ if SHOULD_CLEAN_INSTALL:
 with zipfile.ZipFile('current-pack.zip', 'r') as zip_ref:
     os.mkdir('pack')
     zip_ref.extractall('pack')
-
-
-
 
 if SHOULD_CLEAN_INSTALL:
 
@@ -52,15 +50,37 @@ for (path, directories, files) in os.walk('pack/textures/blocks/'):
     for file in files:
         filePath = path + '/' + file
 
-        merPath = filePath.replace('.png', '_mer.png')
-        hmPath = filePath.replace('.png', '_heightmap.png')
+        mer_path = ''
+        hm_path = ''
+        ts_path = ''
 
-        merImage = Image.new('RGB', (16, 16), (0, 0, 255)) # Fill with roughness
-        hmImage = Image.new('L', (16, 16), 127) # Fill with half height to create base
+        if not filePath.find('.png') == -1:
+            mer_path = filePath.replace('.png', '_mer.png')
+            hm_path = filePath.replace('.png', '_heightmap.png')
+            ts_path = filePath.replace('.png', '.texture_set.json')
 
-        merImage.save(merPath)
-        hmImage.save(hmPath)
+        if not filePath.find('.tga') == -1:
+            mer_path = filePath.replace('.tga', '_mer.png')
+            hm_path = filePath.replace('.tga', '_heightmap.png')
+            ts_path = filePath.replace('.tga', '.texture_set.json')
+        
 
-        tsPath = filePath.replace('.png', '.texture_set.json')
-        tsFile = open(tsPath, 'w+', encoding='utf-8')
-        tsFile.write(textureSetSample.replace('name', file))
+        colorImage = Image.open(filePath)
+
+        merImage = Image.new('RGB', (colorImage.size[0], colorImage.size[1]), (0, 0, 255)) # Fill with roughness
+        hmImage = Image.new('L', (colorImage.size[0], colorImage.size[1]), 127) # Fill with half height to create base
+
+        merImage.save(mer_path)
+        hmImage.save(hm_path)
+
+        tsFile = open(ts_path, 'w+', encoding='utf-8')
+        tsFile.write(textureSetSample.replace('name', file.replace('.png', '').replace('.tga', '')))
+
+        create_height_map(filePath, hm_path)
+
+
+
+# Take grey scale as heightmap
+# Take color as emmisive for ore
+# set metallic and roughness for blocksof
+# set emmisive for light sections of emmissive blocks
