@@ -1,15 +1,5 @@
 current-pack.zip
-pack/animation_controllers/
-pack/animations/
-pack/attachables/
-pack/entity/
-pack/models/
-pack/particles/
-pack/render_controllers/
-pack/sounds/
-pack/text/
-pack/texture_sets/
-pack/ui
+pack/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -8,7 +8,7 @@ import json
 from PIL import Image
 from block_operations import create_height_map
 
-SHOULD_CLEAN_INSTALL = False
+SHOULD_CLEAN_INSTALL = True
 
 if os.path.exists('pack'):
     shutil.rmtree('pack')
