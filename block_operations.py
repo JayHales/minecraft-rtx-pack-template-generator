@@ -26,3 +26,8 @@ def create_height_map(color_path: string, heightmap_path: string):
     grey_scale_image = convert_to_grey_scale(color_image)
 
     grey_scale_image.save(heightmap_path)
+
+def add_simple_emmission():
+   emmissive_blocks = open('emmissive_blocks').read().split('\n');
+
+   

@@ -18,6 +18,11 @@ if os.path.exists('current-pack.zip') and SHOULD_CLEAN_INSTALL:
 
 URL = 'https://aka.ms/resourcepacktemplate'
 
+# Ignore 'candle' as _lit covers lit candles
+EMMISSIVE_KEY_WORDS = ['lantern', '_on', 'glow', 'light', 'fire', 'magma']
+METALLIC_KEY_WORDS = ['diamond_block', 'gold_block', 'copper_block', 'iron_block', 'emerald_block', 'redstone_block', 'lapis_block', 'command', 'netherite_block']
+
+
 if SHOULD_CLEAN_INSTALL:
     urllib.request.urlretrieve(URL, 'current-pack.zip')
 
@@ -48,7 +53,25 @@ textureSetSampleFile.close()
 
 for (path, directories, files) in os.walk('pack/textures/blocks/'):
     for file in files:
+
+        is_emmissive = False
+
+        is_metallic = False
+
         filePath = path + '/' + file
+
+        for term in EMMISSIVE_KEY_WORDS:
+            if file.lower().find(term.lower()) != -1:
+
+                if term == 'light' and file.lower().find('lit') == -1:
+                    continue
+
+                is_emmissive = True
+
+        for term in METALLIC_KEY_WORDS:
+            if file.lower().find(term.lower()) != -1:
+                is_metallic = True
+                print(file)
 
         mer_path = ''
         hm_path = ''
@@ -67,7 +90,7 @@ for (path, directories, files) in os.walk('pack/textures/blocks/'):
 
         colorImage = Image.open(filePath)
 
-        merImage = Image.new('RGB', (colorImage.size[0], colorImage.size[1]), (0, 0, 255)) # Fill with roughness
+        merImage = Image.new('RGB', (colorImage.size[0], colorImage.size[1]), (255 if is_metallic else 0, 255 if is_emmissive else 0, 255)) # Fill with roughness
         hmImage = Image.new('L', (colorImage.size[0], colorImage.size[1]), 127) # Fill with half height to create base
 
         merImage.save(mer_path)
@@ -77,7 +100,6 @@ for (path, directories, files) in os.walk('pack/textures/blocks/'):
         tsFile.write(textureSetSample.replace('name', file.replace('.png', '').replace('.tga', '')))
 
         create_height_map(filePath, hm_path)
-
 
 
 # Take grey scale as heightmap
